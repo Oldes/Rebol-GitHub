@@ -1,0 +1,12 @@
+;-    .-.                                                                       
+;-   /'v'\   SISKIN-Builder project file                                        
+;-  (/uOu\)  https://github.com/Siskin-framework/Builder/                       
+;-===="="=======================================================================
+
+output: %build/
+eggs: [
+	"Preprocess Rebol/GitHub module" [
+		name:      %github.reb
+		preprocess %github.reb
+	]
+]
