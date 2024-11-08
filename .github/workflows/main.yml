@@ -32,7 +32,8 @@ jobs:
         REBOL_USER_FILE: ${{ secrets.REBOL_USER_FILE }}
       run: |
         echo $REBOL_USER_FILE > /home/runner/user.reb
-        ./rebol3 --do "? system/user"
+        cat /home/runner/user.reb
+        ./rebol3 --do "? system/options ? system/user ls ."
 
     - name: Test GitHub API module
       run:  ./rebol3 ci-test.r3
