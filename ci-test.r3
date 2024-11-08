@@ -22,7 +22,7 @@ import 'github
 print as-yellow {Resolve the current user’s identity:}
 probe github-query {query {viewer {login}}} none
 
-print as-yellow {Initialize variables for the GraphQL API:}
+;; Initialize variables for the GraphQL API:
 variables: #[owner: "Oldes" repo: "Rebol3"]
 
 print as-yellow {Retrieve the last 10 commits:}
@@ -38,8 +38,10 @@ print as-yellow {Retrieve the data usage:}
 probe github-query 'repo-disk-usage :variables
 
 ;- REST API tests...
-print as-yellow {Set the repository for REST API calls:}
-github-repo Oldes/Rebol3
+;; Set the repository for REST API calls:
+github-repo 'Oldes/Rebol3
 
 print as-yellow {List all repository workflows:}
 probe github-get/workflows
+
+print 'DONE
