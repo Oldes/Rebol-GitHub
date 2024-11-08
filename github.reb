@@ -29,7 +29,8 @@ github-repo: func[
 	"Initialize the repository used for REST API calls."
 	repo [block! path!]
 ][
-	:rest/use-repo first repo second repo
+	rest/use-repo first repo second repo
+	()
 ]
 github-run:  :rest/run
 github-get:  :rest/get

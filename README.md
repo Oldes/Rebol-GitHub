@@ -48,7 +48,7 @@ help github-post
 help github-edit
 
 ;; Set the repository for REST API calls:
-github-repo 'Oldes/Rebol3
+github-repo ["Oldes" "Rebol3"]
 
 ;; Retrieve all repository workflows:
 probe github-get/workflows
