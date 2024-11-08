@@ -1,0 +1,43 @@
+name: 'Rebol-GitHub CI'
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Siskin Builder
+      uses: oldes/install-siskin@v0.17.0
+
+    - name: Build the GitHub module
+      run: ./siskin Rebol-GitHub.nest github.reb
+
+    - name: Install Rebol for the test
+      uses: oldes/install-rebol@v3.16.0
+
+    - name: Setup Rebol user enironment
+      env:
+        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
+        REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
+        REBOL_USER_FILE: ${{ secrets.REBOL_USER_FILE }}
+      run: |
+        echo $REBOL_USER_FILE > /home/runner/user.reb
+        ./rebol3 --do "? system/user"
+
+    - name: Test GitHub API module
+      run:  ./rebol3 ci-test.r3
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Rebol-GitHub-CI-${{github.run_id}}
+        path: ./build/github.reb

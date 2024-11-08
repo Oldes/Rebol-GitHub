@@ -6,7 +6,6 @@ rest: context [
 	api.github: https://api.github.com/
 	owner:
 	repository: none
-	authorization: user's github-token
 
 	data: make map! 4
 	response: none
@@ -124,7 +123,9 @@ rest: context [
 		url: join api.github path
 		;?? url
 		header: make map! 4
-		header/Authorization: authorization
+		unless header/Authorization: user's github-token [
+			do make error! "Authorization token (github-token) is missing!"
+		]
 		header/X-OAuth-Scopes: "repo"
 		header/Accept: "Accept: application/vnd.github.v3+json"
 

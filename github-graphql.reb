@@ -3,24 +3,34 @@ Rebol [
 ]
 
 graphql: context [
-	queries: [
+	queries: object [
 		#include %queries.reb
 	]
 
 	header: make map! [
 		Accept: "application/vnd.github+json"
-		X-GitHub-Api-Version: 2022-11-28
+		X-GitHub-Api-Version: "2022-11-28"
 	]
-	header/Authorization: user's github-token-oldes
 
 	request: func[
-		query [string!]
-		/v variables [map!]
+		query [string! word!]
+		variables [map! none!]
 		/local data retry result
 	][
+		if none? header/Authorization: user's github-token [
+			do make error! "Authorization token (github-token) is missing!"
+		]
+		if word? :query [
+			result: select queries :query
+			unless result [
+				print [as-purple "*** Unknown query:" as-red :query]
+				return none 
+			]
+			query: :result
+		]
 		data: make map! 8
 		data/query: query
-		if v [data/variables: variables]
+		if variables [data/variables: variables]
 		retry: 3
 		while [retry > 0][
 			result: try [
