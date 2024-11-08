@@ -27,17 +27,21 @@ jobs:
 
     - name: Setup Rebol user enironment
       env:
-        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
-        REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
         REBOL_USER_FILE: ${{ secrets.REBOL_USER_FILE }}
       run: |
         echo $REBOL_USER_FILE > /home/runner/user.reb
         cat /home/runner/user.reb
 
     - name: Validate Rebol user enironment
+      env:
+        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
+        REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
       run: ./rebol3 --do "? system/options ? system/user ls (system/options/home)"
 
     - name: Test GitHub API module
+      env:
+        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
+        REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
       run:  ./rebol3 ci-test.r3
 
     - uses: actions/upload-artifact@v4
