@@ -55,3 +55,4 @@ github-repo ["Oldes" "Rebol3"]
 probe github-get/workflows
 ```
 
+Check the [CI-test script](https://github.com/Oldes/Rebol-GitHub/blob/main/ci-test.r3) for more examples.
