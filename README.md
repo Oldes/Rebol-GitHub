@@ -1,5 +1,8 @@
+[![rebol-github](https://github.com/user-attachments/assets/55bbab17-9ccd-4272-bac4-953fdeb92b7a)](https://github.com/Oldes/Rebol-Github)
+
 [![Rebol-GitHub CI](https://github.com/Oldes/Rebol-GitHub/actions/workflows/main.yml/badge.svg)](https://github.com/Oldes/Rebol-GitHub/actions/workflows/main.yml)
 [![Gitter](https://badges.gitter.im/rebol3/community.svg)](https://app.gitter.im/#/room/#Rebol3:gitter.im)
+[![Zulip](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://rebol.zulipchat.com/)
 
 # Rebol/GitHub
 
