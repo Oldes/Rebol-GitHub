@@ -97,6 +97,7 @@ foreach a res [
 		prin LF
 		print ["Name:    " a/name]
 		print ["Size:    " a/size_in_bytes]
+		print ["Date:    " to-date a/updated_at]
 		print ["Digest:  " a/digest]
 		print ["Download:" a/archive_download_url]
 	]
