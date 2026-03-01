@@ -197,6 +197,7 @@ rest: context [
 			header/Content-Type:  "application/json"
 			data: to-json data
 		]
+		if block? path [path: ajoin path]
 		;; When the server responds with 202 (Accepted) status, retry the request.
 		until [
 			response: write/all api.github/:path reduce [method header data]
