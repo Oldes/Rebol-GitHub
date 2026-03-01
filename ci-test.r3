@@ -71,4 +71,36 @@ github-repo 'Oldes/Rebol3
 print as-yellow {List all repository workflows:}
 probe github-get/workflows
 
+print as-yellow {Render a Markdown document:}
+probe github-post/markdown/context "Hello **lads!**^/Problem solved: #144" "Oldes/Rebol3"
+
+print as-yellow {Get the total number of page views per day for the last 14:}
+probe github-get/page-views
+
+print as-yellow {Get the top 10 popular paths over the last 14 days:}
+github-get/popular-paths
+
+print as-yellow {Get the top 10 referrers over the last 14 days:}
+github-get/popular-referrers
+
+print as-yellow {List all contributors and number of their commits:}
+foreach c github-get/contributors [
+	print [pad c/author/login 15  c/total]
+]
+
+print as-yellow {List all active artifacts:}
+github-repo 'Siskin-Framework/Builder
+res: github-get/artifacts
+print ["Total number of artifacts:" length? res]
+foreach a res [
+	unless a/expired [
+		prin LF
+		print ["Name:    " a/name]
+		print ["Size:    " a/size_in_bytes]
+		print ["Digest:  " a/digest]
+		print ["Download:" a/archive_download_url]
+	]
+]
+
+print-horizontal-line
 print 'DONE

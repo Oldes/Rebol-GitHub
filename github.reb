@@ -3,8 +3,8 @@ Rebol [
 	name:  github
 	needs: json
 	title: "Rebol/GitHub utilities"
-	version: 0.2.0
-	date:  8-Nov-2024
+	version: 0.3.0
+	date:  1-Mar-2026
 	home:  https://github.com/Oldes/Rebol-GitHub
 	exports: [
 		github-query

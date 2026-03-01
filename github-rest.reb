@@ -35,9 +35,67 @@ rest: context [
 		current-user: does [*do 'GET %user none]
 
 		workflows: func[
-
+			"Lists the workflows in a repository."
 		][
 			*do 'GET [%repos/ owner %/ repository %/actions/workflows] none
+		]
+
+		artifacts: func [
+			"Lists all artifacts for a repository."
+			/part limit [integer!] "Limits number of received artifacts to a given length"
+			/local path artifacts tmp
+		][
+			path: ajoin [%repos/ owner %/ repository %/actions/artifacts]
+			append path ajoin ["?per_page=" max 1 any [limit 100]]
+			artifacts: make block! 100
+			response: write/all api.github/:path reduce ['GET *header]
+			all [
+				map?   tmp: *response-body
+				block? tmp: tmp/artifacts
+				append artifacts tmp
+			]
+			while [all [
+				map?   tmp: *next-page
+				block? tmp: tmp/artifacts
+			]][
+				append artifacts tmp
+				if all [limit limit <= length? artifacts][
+					clear skip artifacts limit ;; limit output to the requested length
+					break
+				]
+			]
+			artifacts
+		]
+
+		page-views: func[
+			"Get the total number of views and breakdown per day or week for the last 14 days."
+			/week
+		][
+			*do 'GET [
+				%repos/ owner %/ repository
+				%/traffic/views?per= either/only week %week %day
+			] none
+		]
+		popular-paths: func[
+			"Get the top 10 popular contents over the last 14 days."
+		][
+			*do 'GET [%repos/ owner %/ repository %/traffic/popular/paths] none
+		]
+		popular-referrers: func[
+			"Get the top 10 referrers over the last 14 days."
+		][
+			*do 'GET [%repos/ owner %/ repository %/traffic/popular/referrers] none
+		]
+		contributors: func[
+			"Returns the total number of commits authored by the contributor"
+		][
+			*do 'GET [%repos/ owner %/ repository %/stats/contributors] none
+		]
+
+		emojis: func[
+			"Lists all the emojis available to use on GitHub."
+		][
+			*do 'GET %emojis none
 		]
 	]
 
@@ -79,7 +137,6 @@ rest: context [
 			data/name: name
 			data/description: desc
 			data/color: color 
-			probe data
 			*do 'POST [%repos/ owner %/ repository %/labels] data
 		]
 
@@ -99,8 +156,22 @@ rest: context [
 				draft:            (draft)
 				prerelease:       (prerelease)
 			]
-			? data
 			*do 'POST [%repos/ owner %/ repository %/releases] data
+		]
+
+		markdown: func[
+			"Render a Markdown document"
+			text  [string!] "The Markdown text to render in HTML."
+			/context
+			 repo [string! path! none!] "The repository context to use when creating references."
+		][
+			clear data
+			data/text: text
+			if context [
+				data/mode: "gfm"
+				data/context: repo
+			]
+			*do 'POST %markdown data
 		]
 	]
 
@@ -119,18 +190,61 @@ rest: context [
 		]
 	]
 
-	*do: func[method [word!] path data [map! none!] /local url header][
-		url: join api.github path
-		;?? url
-		header: make map! 4
+	;- Internal functions...
+	*do: func[method [word!] path data [map! none!] /local header tmp type][
+		header: *header
+		if map? data [
+			header/Content-Type:  "application/json"
+			data: to-json data
+		]
+		;; When the server responds with 202 (Accepted) status, retry the request.
+		until [
+			response: write/all api.github/:path reduce [method header data]
+			response/1 != 202
+		]
+		*response-body
+	]
+	*header: function[][
+		header: clear #[]
 		unless header/Authorization: user's github-token [
 			do make error! "Authorization token (github-token) is missing!"
 		]
 		header/X-OAuth-Scopes: "repo"
-		header/Accept: "Accept: application/vnd.github.v3+json"
-
-		if map? data [header/Content-Type:  "application/json"]
-		response: write url reduce [method to block! header to-json data]
-		try [response: load-json to string! response]
+		header/Accept: "application/vnd.github+json"
+		header/X-GitHub-Api-Version: "2022-11-28"
+		header
+	]
+	*next-page: func[/local links link url rel][
+		links: clear #[]
+		if all [
+			string? link: select response/2 'link
+			parse link [
+				any [
+					thru #"<" copy url: to #">"
+					thru {; rel="} copy rel: to {"} (
+						rel: to word! rel
+						links/:rel: as url! url
+					)
+				] to end
+				;(?? links)
+			]
+			links/next
+		][
+			response: read/all links/next
+			*response-body
+		]
+	]
+	*response-body: func[/local tmp type][
+		;; Uncertain if it's a bug in Rebol's HTTP handling or in Github, but GitHub's error responses
+		;; sometimes lack Content-Length and include trailing bytes instead. Remove them if found.
+		if "^A^@" == tmp: skip tail response/3 -2 [clear tmp]
+		;; Not all responses are in JSON format!
+		if all [
+			type: select response/2 'Content-Type
+			find type "json"
+		][
+			response/3: load-json response/3
+		]
+		response/3
 	]
 ]
