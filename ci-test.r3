@@ -78,7 +78,7 @@ print as-yellow {Get the total number of page views per day for the last 14:}
 probe github-get/page-views
 
 print as-yellow {Get the top 10 popular paths over the last 14 days:}
-github-get/popular-paths
+probe github-get/popular-paths
 
 print as-yellow {Get the top 10 referrers over the last 14 days:}
 github-get/popular-referrers
