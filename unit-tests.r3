@@ -91,7 +91,8 @@ summary: does [
 do %github-rest.reb
 rest/use-repo "Oldes" "Rebol3"
 
-real-do: :rest/*do
+real-do:     :rest/*do
+real-header: :rest/*header
 ;; Mock the HTTP layer: return what would be sent instead of sending it
 rest/*do: func[method path data][reduce [method ajoin path data]]
 
@@ -239,6 +240,21 @@ rest/*send: func[url request /local n][
 	clear requests
 	r: rest/get/artifacts/part 3
 	is? reduce [r length? requests] [[1 1 2] 2]
+]
+
+
+group "*header"
+
+--test-- "auth headers without X-OAuth-Scopes" [
+	saved: :user's
+	user's: func['field][if field == 'github-token ["token T"]]
+	h: try [real-header]
+	user's: :saved
+	all [
+		map? h
+		h/Authorization == "token T"
+		none? select h 'X-OAuth-Scopes
+	]
 ]
 
 summary

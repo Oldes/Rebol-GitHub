@@ -222,7 +222,6 @@ rest: context [
 		unless header/Authorization: user's github-token [
 			do make error! "Authorization token (github-token) is missing!"
 		]
-		header/X-OAuth-Scopes: "repo"
 		header/Accept: "application/vnd.github+json"
 		header/X-GitHub-Api-Version: "2022-11-28"
 		header
