@@ -437,8 +437,10 @@ user's: :mock-user's
 
 calls: 0
 replies: copy []
+last-request: none
 graphql/*send: func[url request /local r][
 	calls: calls + 1
+	last-request: request
 	r: take replies
 	if error? r [do r]
 	r
@@ -479,6 +481,15 @@ setup: func[list][calls: 0  append clear replies reduce list]
 --test-- "unknown query name returns none" [
 	setup []
 	is? graphql/request 'no-such-query none #(none)
+]
+--test-- "sends POST with header map and auth" [
+	setup [reply 200 {{"data":{}}}]
+	graphql/request "q" none
+	all [
+		last-request/1 == 'POST
+		map? last-request/2
+		last-request/2/Authorization == "token T"
+	]
 ]
 
 user's: :real-user's

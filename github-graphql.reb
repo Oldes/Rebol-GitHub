@@ -37,7 +37,7 @@ graphql: context [
 		tries: max-attempts
 		forever [
 			response: try [
-				*send https://api.github.com/graphql reduce ['POST to block! header to-json data]
+				*send https://api.github.com/graphql reduce ['POST header to-json data]
 			]
 			case [
 				error? response [] ;; network error, retry
