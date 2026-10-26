@@ -345,6 +345,36 @@ rest/*send: func[url request][
 ]
 
 
+group "get/issues"
+
+rest/*send: func[url request /local n][
+	append/only requests reduce [url request]
+	n: length? requests
+	reduce [
+		200
+		compose #[
+			Content-Type: "application/json"
+			link: (either n < 3 [ajoin [{<https://api.github.com/p} 1 + n {>; rel="next"}]][""])
+		]
+		to-json array/initial 2 n
+	]
+]
+
+--test-- "all pages" [
+	clear requests
+	is? rest/get/issues [1 1 2 2 3 3]
+]
+--test-- "/part trims across pages" [
+	clear requests
+	r: rest/get/issues/part 3
+	is? reduce [r length? requests] [[1 1 2] 2]
+]
+--test-- "per_page in URL" [
+	clear requests
+	rest/get/issues/part 3
+	did find form requests/1/1 "?per_page=3"
+]
+
 
 group "GraphQL"
 

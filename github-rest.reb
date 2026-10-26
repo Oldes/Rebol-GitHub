@@ -16,11 +16,14 @@ rest: context [
 	use-repo: func[o r][ owner: o repository: r] 
 
 	get: object [
-		issues: func[][
-			*do 'GET [%repos/ owner %/ repository %/issues] none
-		]
 		issue: func[number [integer!]][
 			*do 'GET [%repos/ owner %/ repository %/issues/ number] none
+		]
+		issues: func[
+			"Lists issues (and pull requests) in a repository."
+			/part limit [integer!] "Limits number of received issues to a given length"
+		][
+			*get-pages ajoin [%repos/ owner %/ repository %/issues] none limit
 		]
 		issue-comments: func[
 			{Gets all comments of an issue by its number}
@@ -43,31 +46,11 @@ rest: context [
 			*do 'GET [%repos/ owner %/ repository %/actions/workflows] none
 		]
 
-		artifacts: func [
+		artifacts: func[
 			"Lists all artifacts for a repository."
 			/part limit [integer!] "Limits number of received artifacts to a given length"
-			/local path artifacts tmp
 		][
-			path: ajoin [%repos/ owner %/ repository %/actions/artifacts]
-			append path ajoin ["?per_page=" min 100 max 1 any [limit 100]]
-			artifacts: make block! 100
-			response: *send api.github/:path reduce ['GET *header]
-			all [
-				map?   tmp: *response-body
-				block? tmp: tmp/artifacts
-				append artifacts tmp
-			]
-			while [all [
-				any [none? limit  limit > length? artifacts] ;; stop before fetching more than needed
-				map?   tmp: *next-page
-				block? tmp: tmp/artifacts
-			]][
-				append artifacts tmp
-			]
-			if all [limit  limit < length? artifacts][
-				clear skip artifacts limit ;; limit output to the requested length
-			]
-			artifacts
+			*get-pages ajoin [%repos/ owner %/ repository %/actions/artifacts] 'artifacts limit
 		]
 
 		page-views: func[
@@ -277,5 +260,30 @@ rest: context [
 			]
 		]
 		response/3
+	]
+	*get-pages: func[
+		"GETs a paginated list, following `next` links"
+		path  [any-string!]
+		field [word! none!]    "Field holding the list, or none when the body is the list"
+		limit [integer! none!] "Max number of items"
+		/local result tmp
+	][
+		append path ajoin [
+			either find path #"?" [#"&"][#"?"]
+			"per_page=" min 100 max 1 any [limit 100]
+		]
+		result: make block! 100
+		response: *send api.github/:path reduce ['GET *header]
+		tmp: *response-body
+		while [
+			if field [tmp: all [map? tmp  tmp/:field]]
+			block? tmp
+		][
+			append result tmp
+			unless any [none? limit  limit > length? result][break]
+			tmp: *next-page
+		]
+		if all [limit  limit < length? result][clear skip result limit]
+		result
 	]
 ]
