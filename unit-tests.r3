@@ -91,6 +91,7 @@ summary: does [
 do %github-rest.reb
 rest/use-repo "Oldes" "Rebol3"
 
+real-do: :rest/*do
 ;; Mock the HTTP layer: return what would be sent instead of sending it
 rest/*do: func[method path data][reduce [method ajoin path data]]
 
@@ -172,6 +173,35 @@ link-next: {<https://api.github.com/x?page=2>; rel="next", <https://api.github.c
 	clear requests
 	rest/response: reduce [200 #[link: {<https://api.github.com/x?page=1>; rel="prev"}] ""]
 	is? reduce [rest/*next-page length? requests] [#(none) 0]
+]
+
+
+group "*do 202 retry"
+
+rest/*do: :real-do
+rest/retry-delay: 0
+statuses: copy []
+rest/*send: func[url request][
+	append/only requests reduce [url request]
+	reduce [any [take statuses 200] #[] copy ""]
+]
+
+--test-- "no retry on 200" [
+	clear requests  clear statuses
+	rest/*do 'GET %x none
+	is? length? requests 1
+]
+--test-- "retries on 202 until 200" [
+	clear requests  append clear statuses [202 202 200]
+	rest/*do 'GET %x none
+	is? length? requests 3
+]
+--test-- "gives up after max-attempts" [
+	clear requests  append clear statuses [202 202 202 202 202]
+	rest/max-attempts: 3
+	rest/*do 'GET %x none
+	rest/max-attempts: 10
+	is? reduce [length? requests rest/response/1] [3 202]
 ]
 
 summary

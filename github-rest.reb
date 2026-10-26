@@ -10,6 +10,9 @@ rest: context [
 	data: make map! 4
 	response: none
 
+	max-attempts: 10       ;; max requests while the server answers 202 (Accepted)
+	retry-delay:  0:0:2    ;; wait between them
+
 	use-repo: func[o r][ owner: o repository: r] 
 
 	get: object [
@@ -199,18 +202,19 @@ rest: context [
 	][
 		write/all url request
 	]
-	*do: func[method [word!] path data [map! none!] /local header tmp type][
+	*do: func[method [word!] path data [map! none!] /local header tries][
 		header: *header
 		if map? data [
 			header/Content-Type:  "application/json"
 			data: to-json data
 		]
 		if block? path [path: ajoin path]
-		;; When the server responds with 202 (Accepted) status, retry the request.
-		until [
+		;; When the server responds with 202 (Accepted), wait and retry (limited).
+		tries: max-attempts
+		while [
 			response: *send api.github/:path reduce [method header data]
-			response/1 != 202
-		]
+			all [response/1 == 202  0 < tries: tries - 1]
+		][	wait retry-delay ]
 		*response-body
 	]
 	*header: function[][
