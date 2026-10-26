@@ -144,4 +144,34 @@ group "post/release"
 	is? reduce [r/1 r/2] [POST %repos/Oldes/Rebol3/releases]
 ]
 
+
+group "*next-page"
+
+;; HTTP mocks
+requests: copy []
+rest/*header: does [#[Authorization: "token TEST"]]
+rest/*send: func[url request][
+	append/only requests reduce [url request]
+	reduce [200 #[Content-Type: "application/json"] copy {{"page":2}}]
+]
+link-next: {<https://api.github.com/x?page=2>; rel="next", <https://api.github.com/x?page=9>; rel="last"}
+
+--test-- "follows next link with auth header" [
+	clear requests
+	rest/response: reduce [200 compose #[link: (link-next)] ""]
+	rest/*next-page
+	is? reduce [requests/1/1 requests/1/2/1 requests/1/2/2/Authorization]
+	    reduce [https://api.github.com/x?page=2 'GET "token TEST"]
+]
+--test-- "returns next page body" [
+	rest/response: reduce [200 compose #[link: (link-next)] ""]
+	r: rest/*next-page
+	is? r/page 2
+]
+--test-- "no next link, no request" [
+	clear requests
+	rest/response: reduce [200 #[link: {<https://api.github.com/x?page=1>; rel="prev"}] ""]
+	is? reduce [rest/*next-page length? requests] [#(none) 0]
+]
+
 summary

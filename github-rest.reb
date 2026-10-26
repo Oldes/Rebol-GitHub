@@ -48,7 +48,7 @@ rest: context [
 			path: ajoin [%repos/ owner %/ repository %/actions/artifacts]
 			append path ajoin ["?per_page=" max 1 any [limit 100]]
 			artifacts: make block! 100
-			response: write/all api.github/:path reduce ['GET *header]
+			response: *send api.github/:path reduce ['GET *header]
 			all [
 				map?   tmp: *response-body
 				block? tmp: tmp/artifacts
@@ -192,6 +192,13 @@ rest: context [
 	]
 
 	;- Internal functions...
+	*send: func[
+		"Sends an HTTP request and returns [status headers body]"
+		url     [url!]
+		request [block!]
+	][
+		write/all url request
+	]
 	*do: func[method [word!] path data [map! none!] /local header tmp type][
 		header: *header
 		if map? data [
@@ -201,7 +208,7 @@ rest: context [
 		if block? path [path: ajoin path]
 		;; When the server responds with 202 (Accepted) status, retry the request.
 		until [
-			response: write/all api.github/:path reduce [method header data]
+			response: *send api.github/:path reduce [method header data]
 			response/1 != 202
 		]
 		*response-body
@@ -232,7 +239,7 @@ rest: context [
 			]
 			links/next
 		][
-			response: read/all links/next
+			response: *send links/next reduce ['GET *header]
 			*response-body
 		]
 	]
