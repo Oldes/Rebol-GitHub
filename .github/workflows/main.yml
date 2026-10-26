@@ -14,23 +14,24 @@ jobs:
     runs-on: ubuntu-slim
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     - name: Install Siskin Builder
-      uses: oldes/install-siskin@v0.17.0
+      uses: oldes/install-siskin@v0.23.1
 
     - name: Build the GitHub module
       run: ./siskin Rebol-GitHub.nest github.reb
 
     - name: Install Rebol for the test
-      uses: oldes/install-rebol@v3.16.0
+      uses: oldes/install-rebol@v3.22.1
+
+    - name: Run offline unit tests
+      run: ./rebol3 unit-tests.r3
 
     - name: Setup Rebol user enironment
       env:
         REBOL_USER_FILE: ${{ secrets.REBOL_USER_FILE }}
-      run: |
-        echo $REBOL_USER_FILE > /home/runner/user.reb
-        cat /home/runner/user.reb
+        run: printf '%s' "$REBOL_USER_FILE" > /home/runner/user.reb
 
     - name: Validate Rebol user enironment
       env:
@@ -44,7 +45,7 @@ jobs:
         REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
       run:  ./rebol3 ci-test.r3
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: Rebol-GitHub-CI-${{github.run_id}}
         path: ./build/github.reb
