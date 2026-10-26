@@ -100,6 +100,12 @@ rest: context [
 		][
 			*do 'GET %emojis none
 		]
+
+		pages: func[
+			"Gets information about a GitHub Pages site."
+		][
+			*do 'GET [%repos/ owner %/ repository %/pages] none
+		]
 	]
 
 	post: object [

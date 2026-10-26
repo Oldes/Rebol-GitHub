@@ -305,4 +305,14 @@ rest/*do: :mock-do
 	is? reduce [r/1 r/2] [POST %markdown]
 ]
 
+
+group "get/pages"
+
+rest/*do: :mock-do
+
+--test-- "method and path" [
+	r: rest/get/pages
+	is? reduce [r/1 r/2 r/3] [GET %repos/Oldes/Rebol3/pages #(none)]
+]
+
 summary
