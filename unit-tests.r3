@@ -89,6 +89,7 @@ summary: does [
 ;;=============================================================================
 
 do %github-rest.reb
+do %github-graphql.reb
 rest/use-repo "Oldes" "Rebol3"
 
 real-do:     :rest/*do
@@ -339,5 +340,61 @@ rest/*send: func[url request][
 	r: rest/get/pages
 	is? r/ok true
 ]
+
+
+
+group "GraphQL"
+
+graphql/retry-delay: 0
+saved-users: :user's
+user's: func['field][if field == 'github-token ["token T"]]
+
+calls: 0
+replies: copy []
+graphql/*send: func[url request /local r][
+	calls: calls + 1
+	r: take replies
+	if error? r [do r]
+	r
+]
+reply: func[status json][reduce [status #[] to binary! json]]
+setup: func[list][calls: 0  append clear replies reduce list]
+
+--test-- "returns decoded data" [
+	setup [reply 200 {{"data":{"a":1}}}]
+	r: graphql/request "q" none
+	is? r/data/a 1
+]
+--test-- "errors without data raise error" [
+	setup [reply 200 {{"data":null,"errors":[{"message":"Bad query"}]}}]
+	e: try [graphql/request "q" none]
+	all [error? e  did find form e "Bad query"]
+]
+--test-- "4xx is not retried" [
+	setup [reply 401 {{"message":"Bad credentials"}}  reply 200 {{"data":{}}}]
+	e: try [graphql/request "q" none]
+	all [error? e  calls == 1]
+]
+--test-- "5xx is retried" [
+	setup [reply 502 "" reply 200 {{"data":{"a":1}}}]
+	r: graphql/request "q" none
+	is? reduce [calls r/data/a] [2 1]
+]
+--test-- "network error is retried" [
+	setup [make error! "net down"  reply 200 {{"data":{"a":1}}}]
+	r: graphql/request "q" none
+	is? calls 2
+]
+--test-- "gives up after max-attempts" [
+	setup [reply 502 "" reply 502 "" reply 502 "" reply 502 ""]
+	e: try [graphql/request "q" none]
+	all [error? e  calls == 3]
+]
+--test-- "unknown query name returns none" [
+	setup []
+	is? graphql/request 'no-such-query none #(none)
+]
+
+user's: :saved-users
 
 summary
