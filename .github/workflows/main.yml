@@ -31,6 +31,7 @@ jobs:
     - name: Setup user
       env:
         REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
+        REBOL_GITHUB_TEST_TOKEN: ${{ secrets.REBOL_GITHUB_TEST_TOKEN }}
       run: ./rebol3 -s ci-setup.r3
 
     - name: Test GitHub API module
