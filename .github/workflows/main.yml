@@ -38,7 +38,8 @@ jobs:
         REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
         REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
       run: |
-        ./rebol3 --do "print read %user.reb"
+        ./rebol3 --do "probe what-dir"
+        ./rebol3 --do "print read %/home/runner/user.reb"
         ./rebol3 --do "? system/options ? system/user ls (system/options/home)"
 
     - name: Test GitHub API module
