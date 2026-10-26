@@ -28,10 +28,10 @@ jobs:
     - name: Run offline unit tests
       run: ./rebol3 unit-tests.r3
 
-    - name: Setup Rebol user enironment
+    - name: Setup Rebol user environment
       env:
         REBOL_USER_FILE: ${{ secrets.REBOL_USER_FILE }}
-        run: printf '%s' "$REBOL_USER_FILE" > /home/runner/user.reb
+      run: printf '%s' "$REBOL_USER_FILE" > /home/runner/user.reb
 
     - name: Validate Rebol user enironment
       env:
