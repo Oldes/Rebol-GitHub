@@ -25,19 +25,13 @@ jobs:
     - name: Install Rebol for the test
       uses: oldes/install-rebol@v3.22.1
 
-    - name: Setup user
-      env:
-        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
-        REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
-      run: ./rebol3 -s ci-setup.r3
-
     - name: Run offline unit tests
       run: ./rebol3 -s unit-tests.r3
 
-    - name: Validate Rebol user enironment
+    - name: Setup user
       env:
         REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
-      run: ./rebol3 --do "? system/options ? system/user ls (system/options/home)"
+      run: ./rebol3 -s ci-setup.r3
 
     - name: Test GitHub API module
       env:
