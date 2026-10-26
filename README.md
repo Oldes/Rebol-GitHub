@@ -37,25 +37,42 @@ probe github-query {query {viewer {login}}} none
 
 ;; Retrieve the last 10 commits:
 probe github-query 'last-10-commits :data
+
+;; Paging queries (`next-100-commits`, `next-100-issues`) take the cursor in `after`:
+data/after: "..."
 ```
 
 ## REST API Usage example
 
 ```rebol
-;; List all of supported `get` functions:
+;; List all of supported `get`, `post`, `edit` and `run` functions:
 help github-get
-
-;; List all of supported `post` functions:
 help github-post
-
-;; List all of supported `edit` functions:
 help github-edit
+help github-run
 
 ;; Set the repository for REST API calls:
-github-repo ["Oldes" "Rebol3"]
+github-repo 'Oldes/Rebol3
 
 ;; Retrieve all repository workflows:
 probe github-get/workflows
+
+;; Trigger a workflow (default ref is `main`):
+github-run/workflow/ref/with "main.yml" "master" #[level: "debug"]
 ```
+
+## Error handling
+
+REST calls raise an error with GitHub's message on 4xx/5xx responses.
+GraphQL requests raise an error on 4xx responses, or when the response contains
+`errors` without any `data`. Network and 5xx errors are retried a few times first.
+
+## Testing
+
+Offline unit tests (no network, no token needed):
+```
+rebol3 unit-tests.r3
+```
+Live API tests (needs a user with `github-token`): `ci-test.r3`
 
 Check the [CI-test script](https://github.com/Oldes/Rebol-GitHub/blob/main/ci-test.r3) for more examples.
