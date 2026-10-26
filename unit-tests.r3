@@ -315,4 +315,29 @@ rest/*do: :mock-do
 	is? reduce [r/1 r/2 r/3] [GET %repos/Oldes/Rebol3/pages #(none)]
 ]
 
+
+group "REST errors"
+
+rest/*do: :real-do
+status: 200
+body: none
+rest/*send: func[url request][
+	reduce [status #[Content-Type: "application/json"] copy body]
+]
+
+--test-- "4xx raises error with GitHub message" [
+	status: 404  body: {{"message":"Not Found"}}
+	e: try [rest/get/pages]
+	all [error? e  did find form e "Not Found"]
+]
+--test-- "5xx raises error" [
+	status: 500  body: {{"message":"Server Error"}}
+	error? try [rest/get/pages]
+]
+--test-- "2xx returns decoded body" [
+	status: 200  body: {{"ok":true}}
+	r: rest/get/pages
+	is? r/ok true
+]
+
 summary

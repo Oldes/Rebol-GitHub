@@ -270,6 +270,12 @@ rest: context [
 		][
 			response/3: load-json response/3
 		]
+		if response/1 >= 400 [
+			fail ajoin [
+				"GitHub API error " response/1 ": "
+				any [all [map? response/3  response/3/message] response/3]
+			]
+		]
 		response/3
 	]
 ]
