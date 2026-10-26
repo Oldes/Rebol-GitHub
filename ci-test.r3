@@ -3,7 +3,7 @@ Rebol [
 ]
 
 ;; Initialize the user with a GitHub token:
-set-user github-test
+set-user/p github-test get-env "REBOL_SAFE_PASS"
 
 print ["Running test on Rebol build:" mold to-block system/build]
 system/options/quiet: false
