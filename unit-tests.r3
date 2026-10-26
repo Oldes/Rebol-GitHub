@@ -126,7 +126,11 @@ group "post/issue"
 	r: rest/post/issue #[title: "T" labels: @bug]
 	is? to-json r/3/labels {["bug"]}
 ]
-
+--test-- "caller's map is not modified" [
+	m: #[title: "T" labels: "bug"]
+	rest/post/issue m
+	is? m/labels "bug"
+]
 
 group "post/release"
 

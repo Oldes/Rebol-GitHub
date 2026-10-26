@@ -107,7 +107,10 @@ rest: context [
 			"Creates an issue"
 			data [map!] "title, body, labels etc.."
 		][
-			if any-string? data/labels [data/labels: reduce [data/labels]]
+			if any-string? data/labels [
+				data: copy data ;; don't modify the caller's map
+				data/labels: reduce [data/labels]
+			]
 			*do 'POST [%repos/ owner %/ repository %/issues] data
 		]
 
