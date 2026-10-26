@@ -400,4 +400,33 @@ setup: func[list][calls: 0  append clear replies reduce list]
 
 user's: :real-user's
 
+
+
+group "queries"
+
+query-src: load %queries.reb
+q: make object! query-src
+balanced?: func[s [string!] /local n][
+	n: 0
+	foreach c s [switch c [#"{" [n: n + 1] #"}" [n: n - 1]]]
+	n == 0
+]
+
+--test-- "repo-labels defined once" [
+	n: 0
+	parse query-src [any [quote repo-labels: (n: n + 1) | skip]]
+	is? n 1
+]
+--test-- "all queries have balanced braces" [
+	bad: copy []
+	foreach w words-of q [unless balanced? q/:w [append bad w]]
+	any [empty? bad  bad]
+]
+--test-- "commit queries have no redundant fragments" [
+	not any [
+		find q/last-10-commits  "on Repository"
+		find q/next-100-commits "on Repository"
+	]
+]
+
 summary

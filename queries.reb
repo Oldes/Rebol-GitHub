@@ -217,7 +217,6 @@ next-100-issues: replace {
 last-10-commits: {
   query($owner:String!,$repo:String!) {
     repository(owner:$owner, name:$repo) {
-  ... on Repository {
       defaultBranchRef {
         target {
           ... on Commit {
@@ -228,17 +227,15 @@ last-10-commits: {
               }
               edges {
                 node {
-                  ... on Commit {
-                    oid
-                    committedDate
-                    messageHeadline
-                    messageBody
-} } } } } } } } } } }
+                  oid
+                  committedDate
+                  messageHeadline
+                  messageBody
+} } } } } } } } }
 
 next-100-commits: {
   query($owner:String!,$repo:String!, $after:String!) {
     repository(owner:$owner, name:$repo) {
-  ... on Repository {
       defaultBranchRef {
         target {
           ... on Commit {
@@ -249,23 +246,11 @@ next-100-commits: {
               }
               edges {
                 node {
-                  ... on Commit {
-                    oid
-                    committedDate
-                    messageHeadline
-                    messageBody
-} } } } } } } } } } }
-
-repo-labels: {
-  query($owner:String!,$repo:String!) {
-  repository(owner:$owner, name:$repo) {
-    labels(first:100){
-    edges {
-      node {
-      name
-      description
-      color
-} } } } } }
+                  oid
+                  committedDate
+                  messageHeadline
+                  messageBody
+} } } } } } } } }
 
 releases: {
   query ($owner: String!, $repo: String!) {
