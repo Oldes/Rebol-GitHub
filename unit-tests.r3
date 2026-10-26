@@ -94,7 +94,9 @@ rest/use-repo "Oldes" "Rebol3"
 real-do:     :rest/*do
 real-header: :rest/*header
 ;; Mock the HTTP layer: return what would be sent instead of sending it
-rest/*do: mock-do: func[method path data][reduce [method ajoin path data]]
+rest/*do: mock-do: func[method path data][
+	reduce [method either block? path [ajoin path][path] data]
+]
 
 ;;=============================================================================
 
@@ -259,7 +261,6 @@ group "*header"
 
 
 group "run/workflow"
-
 rest/*do: :mock-do
 
 --test-- "default ref is master" [
@@ -277,6 +278,27 @@ rest/*do: :mock-do
 --test-- "method and path" [
 	r: rest/run/workflow 123
 	is? reduce [r/1 r/2] [POST %repos/Oldes/Rebol3/actions/workflows/123/dispatches]
+]
+
+
+group "post/markdown"
+rest/*do: :mock-do
+
+--test-- "path! context is sent as string" [
+	r: rest/post/markdown/context "x" 'Oldes/Rebol3
+	is? r/3/context "Oldes/Rebol3"
+]
+--test-- "string context" [
+	r: rest/post/markdown/context "x" "Oldes/Rebol3"
+	is? reduce [r/3/context r/3/mode] ["Oldes/Rebol3" "gfm"]
+]
+--test-- "no context, no mode" [
+	r: rest/post/markdown "x"
+	all [none? r/3/context  none? r/3/mode]
+]
+--test-- "method and path" [
+	r: rest/post/markdown "x"
+	is? reduce [r/1 r/2] [POST %markdown]
 ]
 
 summary

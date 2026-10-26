@@ -167,13 +167,13 @@ rest: context [
 			"Render a Markdown document"
 			text  [string!] "The Markdown text to render in HTML."
 			/context
-			 repo [string! path! none!] "The repository context to use when creating references."
+			 repo [any-string! path!] "The repository context to use when creating references."
 		][
 			clear data
 			data/text: text
 			if context [
 				data/mode: "gfm"
-				data/context: repo
+				data/context: form repo
 			]
 			*do 'POST %markdown data
 		]
