@@ -88,6 +88,7 @@ summary: does [
 ;; Setup: REST layer only, HTTP mocked
 ;;=============================================================================
 
+do %compatibility.reb
 do %github-rest.reb
 do %github-graphql.reb
 real-do:     :rest/*do

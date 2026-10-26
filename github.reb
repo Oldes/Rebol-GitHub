@@ -18,15 +18,7 @@ Rebol [
 ]
 
 ;; Backward compatibility:
-if system/version < 3.22.5 [
-	fail: func [
-	    {Raises the given error or an error with the given message.}
-	    value [string! error!] "error message or error value"
-	][
-	    do make error! value
-	]
-]
-
+#include %compatibility.reb
 #include %github-rest.reb    ;; GitHub REST API
 #include %github-graphql.reb ;; GitHub GraphQL API
 

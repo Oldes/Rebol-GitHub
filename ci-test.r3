@@ -10,9 +10,6 @@ system/options/quiet: false
 system/options/log/rebol: 4
 system/options/log/http: 0
 
-;; Backwards compatibility:
-unless any-function? :print-hline [print-hline: :print-horizontal-line]
-
 ;; Ensure a fresh GitHub extension is loaded:
 try [system/modules/github: none]
 ;; Set the modules directory to the build location:
