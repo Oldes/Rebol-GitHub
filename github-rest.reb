@@ -2,16 +2,6 @@ Rebol [
 	title: "GitHub REST API"
 ]
 
-;; Backward compatibility:
-unless any-function? :fail [
-	fail: func [
-	    {Raises the given error or an error with the given message.}
-	    value [string! error!] "error message or error value"
-	][
-	    do make error! value
-	]
-]
-
 rest: context [
 	api.github: https://api.github.com/
 	owner:
