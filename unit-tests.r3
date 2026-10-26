@@ -287,6 +287,18 @@ rest/*do: :mock-do
 	r: rest/run/workflow 123
 	is? reduce [r/1 r/2] [POST %repos/Oldes/Rebol3/actions/workflows/123/dispatches]
 ]
+--test-- "no inputs sends empty map" [
+	r: rest/run/workflow "main.yml"
+	all [map? r/3/inputs  empty? r/3/inputs]
+]
+--test-- "/with sends inputs" [
+	r: rest/run/workflow/with "main.yml" #[level: "debug"]
+	is? r/3/inputs/level "debug"
+]
+--test-- "/ref and /with together" [
+	r: rest/run/workflow/ref/with "main.yml" "dev" #[level: "debug"]
+	is? reduce [r/3/ref r/3/inputs/level] ["dev" "debug"]
+]
 
 
 group "post/markdown"
