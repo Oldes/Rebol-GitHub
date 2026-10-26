@@ -55,7 +55,7 @@ rest: context [
 
 		page-views: func[
 			"Get the total number of views and breakdown per day or week for the last 14 days."
-			/week
+			/week "Breakdown per week (default: per day)"
 		][
 			*do 'GET [
 				%repos/ owner %/ repository

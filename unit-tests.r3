@@ -376,6 +376,20 @@ rest/*send: func[url request /local n][
 ]
 
 
+group "get/page-views"
+
+rest/*do: :mock-do
+
+--test-- "per day by default" [
+	r: rest/get/page-views
+	is? r/2 %repos/Oldes/Rebol3/traffic/views?per=day
+]
+--test-- "/week" [
+	r: rest/get/page-views/week
+	is? r/2 %repos/Oldes/Rebol3/traffic/views?per=week
+]
+
+
 group "GraphQL"
 
 graphql/retry-delay: 0
