@@ -10,6 +10,9 @@ system/options/quiet: false
 system/options/log/rebol: 4
 system/options/log/http: 0
 
+;; Backwards compatibility:
+unless any-function? :print-hline [print-hline: :print-horizontal-line]
+
 ;; Ensure a fresh GitHub extension is loaded:
 try [system/modules/github: none]
 ;; Set the modules directory to the build location:
@@ -19,11 +22,11 @@ print as-yellow {Import the GitHub module:}
 import 'github
 
 ;- GraphQL API tests...
-print-horizontal-line
+print-hline
 print as-yellow {Resolve the current user’s identity:}
 probe github-query {query {viewer {login}}} none
 
-print-horizontal-line
+print-hline
 ;; Initialize variables for the GraphQL API:
 variables: #[owner: "Oldes" repo: "Rebol3"]
 n: 1
@@ -51,19 +54,19 @@ while [
 	if n > 200 [ break ]
 ]
 
-print-horizontal-line
+print-hline
 print as-yellow {List all releases:}
 res: github-query 'releases :variables
 foreach node res/data/repository/releases/edges [
 	print [node/node/name node/node/url]
 ]
 
-print-horizontal-line
+print-hline
 print as-yellow {Retrieve the data usage:}
 probe github-query 'repo-disk-usage :variables
 
 
-print-horizontal-line
+print-hline
 ;- REST API tests...
 ;; Set the repository for REST API calls:
 github-repo 'Oldes/Rebol3
@@ -103,5 +106,5 @@ foreach a res [
 	]
 ]
 
-print-horizontal-line
+print-hline
 print 'DONE
