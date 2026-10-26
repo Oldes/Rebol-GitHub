@@ -13,10 +13,17 @@ rest: context [
 	max-attempts: 10       ;; max requests while the server answers 202 (Accepted)
 	retry-delay:  0:0:2    ;; wait between them
 
-	use-repo: func[o r][ owner: o repository: r] 
+	use-repo: func[
+		"Sets the repository used by REST calls"
+		o [any-word! any-string!] "Owner"
+		r [any-word! any-string!] "Repository name"
+	][ owner: o repository: r ]
 
 	get: object [
-		issue: func[number [integer!]][
+		issue: func[
+			"Gets an issue by its number"
+			number [integer!]
+		][
 			*do 'GET [%repos/ owner %/ repository %/issues/ number] none
 		]
 		issues: func[
@@ -38,7 +45,11 @@ rest: context [
 			*do 'GET [%repos/ owner %/ repository %/issues/ number %/labels] none
 		]
 
-		current-user: does [*do 'GET %user none]
+		current-user: func[
+			"Gets the authenticated user"
+		][
+			*do 'GET %user none
+		]
 
 		workflows: func[
 			"Lists the workflows in a repository."
@@ -172,7 +183,11 @@ rest: context [
 	]
 
 	edit: object [
-		issue: func[number [integer!] data [map!]][
+		issue: func[
+			"Updates an issue by its number"
+			number [integer!]
+			data   [map!] "Fields to change (title, body, state, labels etc.)"
+		][
 			*do 'PATCH [%repos/ owner %/ repository %/issues/ number] data
 		]
 	]
@@ -199,7 +214,13 @@ rest: context [
 	][
 		write/all url request
 	]
-	*do: func[method [word!] path data [map! none!] /local header tries][
+	*do: func[
+		"Sends a REST request and returns the decoded response body"
+		method [word!] "HTTP method"
+		path   [block! file!] "API path (block is joined)"
+		data   [map! none!] "JSON payload"
+		/local header tries
+	][
 		header: *header
 		if map? data [
 			header/Content-Type:  "application/json"
@@ -214,7 +235,9 @@ rest: context [
 		][	wait retry-delay ]
 		*response-body
 	]
-	*header: function[][
+	*header: function[
+		"Returns request headers with the GitHub token"
+	][
 		header: clear #[]
 		unless header/Authorization: user's github-token [
 			fail "Authorization token (github-token) is missing!"
@@ -223,7 +246,10 @@ rest: context [
 		header/X-GitHub-Api-Version: "2022-11-28"
 		header
 	]
-	*next-page: func[/local links link url rel][
+	*next-page: func[
+		"Follows the `next` link of the last response; returns its body or none"
+		/local links link url rel
+	][
 		links: clear #[]
 		if all [
 			string? link: select response/2 'link
@@ -243,7 +269,10 @@ rest: context [
 			*response-body
 		]
 	]
-	*response-body: func[/local tmp type][
+	*response-body: func[
+		"Returns the body of the last response, JSON decoded; raises on HTTP errors"
+		/local tmp type
+	][
 		;; Uncertain if it's a bug in Rebol's HTTP handling or in Github, but GitHub's error responses
 		;; sometimes lack Content-Length and include trailing bytes instead. Remove them if found.
 		if "^A^@" == tmp: skip tail response/3 -2 [clear tmp]

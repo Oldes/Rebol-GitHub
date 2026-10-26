@@ -90,11 +90,37 @@ summary: does [
 
 do %github-rest.reb
 do %github-graphql.reb
-rest/use-repo "Oldes" "Rebol3"
-
 real-do:     :rest/*do
 real-header: :rest/*header
 real-user's:  :user's
+
+undocumented: func[
+	"Returns names of functions without a docstring"
+	ctx [object!]
+	/local out f
+][
+	out: copy []
+	foreach w words-of ctx [
+		if all [any-function? f: get in ctx w  not string? first spec-of :f][append out w]
+	]
+	out
+]
+
+group "docstrings"
+
+--test-- "REST functions are documented" [
+	bad: copy []
+	foreach o reduce [rest rest/get rest/post rest/edit rest/run][
+		append bad undocumented o
+	]
+	any [empty? bad  bad]
+]
+--test-- "GraphQL functions are documented" [
+	bad: undocumented graphql
+	any [empty? bad  bad]
+]
+
+rest/use-repo "Oldes" "Rebol3"
 
 ;; Mock the HTTP layer: return what would be sent instead of sending it
 rest/*do: mock-do: func[method path data][
