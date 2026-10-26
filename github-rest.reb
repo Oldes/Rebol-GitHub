@@ -142,21 +142,21 @@ rest: context [
 		]
 
 		release: func[
+			"Creates a release"
 			tag_name   [string!] "Required. The name of the tag."
-			target     [string!] "Specifies the commitish value that determines where the Git tag is created from. Can be any branch or commit SHA. Unused if the Git tag already exists. Default: the repository's default branch (usually master)."
+			target     [string!] "Specifies the commitish value that determines where the Git tag is created from. Can be any branch or commit SHA. Unused if the Git tag already exists."
 			name       [string!] "The name of the release."
 			body       [string! none!] "Text describing the contents of the tag."
 			draft      [logic!]  {true to create a draft (unpublished) release, false to create a published one.}
 			prerelease [logic!] {true to identify the release as a prerelease. false to identify the release as a full release.}
 		][
 			clear data
-			append data compose [
-				tag_name:         (tag_name)
-				target_commitish: (target)
-				name:             (name)
-				draft:            (draft)
-				prerelease:       (prerelease)
-			]
+			data/tag_name:         tag_name
+			data/target_commitish: target
+			data/name:             name
+			if body [data/body:    body]
+			data/draft:            draft
+			data/prerelease:       prerelease
 			*do 'POST [%repos/ owner %/ repository %/releases] data
 		]
 

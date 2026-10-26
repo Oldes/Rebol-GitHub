@@ -123,4 +123,25 @@ group "post/issue"
 	is? to-json r/3/labels {["bug"]}
 ]
 
+
+group "post/release"
+
+--test-- "body is sent" [
+	r: rest/post/release "v1" "master" "Name" "Notes" false true
+	is? r/3/body "Notes"
+]
+--test-- "none body is omitted" [
+	r: rest/post/release "v1" "master" "Name" none false true
+	not find words-of r/3 'body
+]
+--test-- "other fields" [
+	r: rest/post/release "v1" "master" "Name" "Notes" false true
+	is? reduce [r/3/tag_name r/3/target_commitish r/3/name r/3/draft r/3/prerelease]
+	    reduce ["v1" "master" "Name" false true]
+]
+--test-- "method and path" [
+	r: rest/post/release "v1" "master" "Name" none false false
+	is? reduce [r/1 r/2] [POST %repos/Oldes/Rebol3/releases]
+]
+
 summary
