@@ -94,10 +94,14 @@ rest/use-repo "Oldes" "Rebol3"
 
 real-do:     :rest/*do
 real-header: :rest/*header
+real-user's:  :user's
+
 ;; Mock the HTTP layer: return what would be sent instead of sending it
 rest/*do: mock-do: func[method path data][
 	reduce [method either block? path [ajoin path][path] data]
 ]
+mock-user's: func['field][if field == 'github-token ["token T"]]
+
 
 ;;=============================================================================
 
@@ -253,10 +257,9 @@ rest/*send: func[url request /local n][
 group "*header"
 
 --test-- "auth headers without X-OAuth-Scopes" [
-	saved: :user's
-	user's: func['field][if field == 'github-token ["token T"]]
+	user's: :mock-user's
 	h: try [real-header]
-	user's: :saved
+	user's: :real-user's
 	all [
 		map? h
 		h/Authorization == "token T"
@@ -346,8 +349,8 @@ rest/*send: func[url request][
 group "GraphQL"
 
 graphql/retry-delay: 0
-saved-users: :user's
-user's: func['field][if field == 'github-token ["token T"]]
+
+user's: :mock-user's
 
 calls: 0
 replies: copy []
@@ -395,6 +398,6 @@ setup: func[list][calls: 0  append clear replies reduce list]
 	is? graphql/request 'no-such-query none #(none)
 ]
 
-user's: :saved-users
+user's: :real-user's
 
 summary
