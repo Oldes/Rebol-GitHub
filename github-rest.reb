@@ -116,7 +116,7 @@ rest: context [
 		issue-label: func[
 			{Adds a label(s) to an issue by its number}
 			number  [integer!]
-			label   [string! block!]
+			label   [any-string! block!]
 		][
 			clear data
 			append data/labels: clear [] label

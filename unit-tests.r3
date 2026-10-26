@@ -158,6 +158,26 @@ group "post/release"
 ]
 
 
+group "post/issue-label"
+
+--test-- "string label" [
+	r: rest/post/issue-label 1 "bug"
+	is? r/3/labels ["bug"]
+]
+--test-- "ref! label" [
+	r: rest/post/issue-label 1 @bug
+	is? r/3/labels [@bug]
+]
+--test-- "block of labels" [
+	r: rest/post/issue-label 1 ["bug" "test"]
+	is? r/3/labels ["bug" "test"]
+]
+--test-- "method and path" [
+	r: rest/post/issue-label 42 "bug"
+	is? reduce [r/1 r/2] [POST %repos/Oldes/Rebol3/issues/42/labels]
+]
+
+
 group "*next-page"
 
 ;; HTTP mocks
