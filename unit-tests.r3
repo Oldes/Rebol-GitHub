@@ -204,4 +204,41 @@ rest/*send: func[url request][
 	is? reduce [length? requests rest/response/1] [3 202]
 ]
 
+
+group "get/artifacts"
+
+;; Mock serving 3 pages, each with 2 artifacts numbered by the page
+rest/*send: func[url request /local n][
+	append/only requests reduce [url request]
+	n: length? requests
+	reduce [
+		200
+		compose #[
+			Content-Type: "application/json"
+			link: (either n < 3 [ajoin [{<https://api.github.com/p} 1 + n {>; rel="next"}]][""])
+		]
+		to-json compose #[artifacts: (array/initial 2 n)]
+	]
+]
+
+--test-- "all pages without limit" [
+	clear requests
+	is? rest/get/artifacts [1 1 2 2 3 3]
+]
+--test-- "per_page is capped at 100" [
+	clear requests
+	rest/get/artifacts/part 500
+	did find form requests/1/1 "per_page=100"
+]
+--test-- "limit satisfied by first page, no more requests" [
+	clear requests
+	r: rest/get/artifacts/part 2
+	is? reduce [r length? requests] [[1 1] 1]
+]
+--test-- "limit trims across pages" [
+	clear requests
+	r: rest/get/artifacts/part 3
+	is? reduce [r length? requests] [[1 1 2] 2]
+]
+
 summary

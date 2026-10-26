@@ -49,7 +49,7 @@ rest: context [
 			/local path artifacts tmp
 		][
 			path: ajoin [%repos/ owner %/ repository %/actions/artifacts]
-			append path ajoin ["?per_page=" max 1 any [limit 100]]
+			append path ajoin ["?per_page=" min 100 max 1 any [limit 100]]
 			artifacts: make block! 100
 			response: *send api.github/:path reduce ['GET *header]
 			all [
@@ -58,14 +58,14 @@ rest: context [
 				append artifacts tmp
 			]
 			while [all [
+				any [none? limit  limit > length? artifacts] ;; stop before fetching more than needed
 				map?   tmp: *next-page
 				block? tmp: tmp/artifacts
 			]][
 				append artifacts tmp
-				if all [limit limit <= length? artifacts][
-					clear skip artifacts limit ;; limit output to the requested length
-					break
-				]
+			]
+			if all [limit  limit < length? artifacts][
+				clear skip artifacts limit ;; limit output to the requested length
 			]
 			artifacts
 		]
