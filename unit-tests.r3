@@ -428,5 +428,12 @@ balanced?: func[s [string!] /local n][
 		find q/next-100-commits "on Repository"
 	]
 ]
+--test-- "paging queries use $after cursor" [
+	all [
+		did find q/next-100-issues  "$after:String!"
+		did find q/next-100-commits "$after:String!"
+		not find q/next-100-issues  "after_issue"
+	]
+]
 
 summary

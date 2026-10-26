@@ -208,9 +208,9 @@ first-100-issues: replace {
 } } } } "#ISSUES#" :list-issues
 
 next-100-issues: replace {
-  query($owner:String!,$repo:String!,$after_issue:String!) {
+  query($owner:String!,$repo:String!,$after:String!) {
     repository(owner:$owner, name:$repo) {
-      issues(first:100, after:$after_issue) {
+      issues(first:100, after:$after) {
       #ISSUES#
 } } } } "#ISSUES#" :list-issues
 
