@@ -101,9 +101,10 @@ rest: context [
 
 	post: object [
 		issue: func[
-			data [map!] {title, body, labels etc..}
+			"Creates an issue"
+			data [map!] "title, body, labels etc.."
 		][
-			unless block? data/labels [ data/labels: reduce [labels] ]
+			if any-string? data/labels [data/labels: reduce [data/labels]]
 			*do 'POST [%repos/ owner %/ repository %/issues] data
 		]
 
