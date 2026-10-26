@@ -186,9 +186,13 @@ rest: context [
 	]
 
 	run: object [
-		workflow: func[id][
+		workflow: func[
+			"Triggers a workflow_dispatch event for a workflow."
+			id [integer! string!] "Workflow ID or file name (e.g. main.yml)"
+			/ref branch [any-string!] "Git reference (branch or tag); default: main"
+		][
 			clear data
-			data/ref: "master"
+			data/ref: any [branch @main]
 			data/inputs: make map! 4
 			*do 'POST [%repos/ owner %/ repository %/actions/workflows/ id %/dispatches] data
 		]

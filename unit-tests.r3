@@ -94,7 +94,7 @@ rest/use-repo "Oldes" "Rebol3"
 real-do:     :rest/*do
 real-header: :rest/*header
 ;; Mock the HTTP layer: return what would be sent instead of sending it
-rest/*do: func[method path data][reduce [method ajoin path data]]
+rest/*do: mock-do: func[method path data][reduce [method ajoin path data]]
 
 ;;=============================================================================
 
@@ -255,6 +255,28 @@ group "*header"
 		h/Authorization == "token T"
 		none? select h 'X-OAuth-Scopes
 	]
+]
+
+
+group "run/workflow"
+
+rest/*do: :mock-do
+
+--test-- "default ref is master" [
+	r: rest/run/workflow "main.yml"
+	is? r/3/ref @main
+]
+--test-- "/ref sets the branch" [
+	r: rest/run/workflow/ref "main.yml" "master"
+	is? r/3/ref "master"
+]
+--test-- "/ref accepts ref!" [
+	r: rest/run/workflow/ref "main.yml" @dev
+	is? to-json r/3 {{"ref":"dev","inputs":{}}}
+]
+--test-- "method and path" [
+	r: rest/run/workflow 123
+	is? reduce [r/1 r/2] [POST %repos/Oldes/Rebol3/actions/workflows/123/dispatches]
 ]
 
 summary
