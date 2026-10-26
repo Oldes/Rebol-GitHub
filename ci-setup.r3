@@ -10,3 +10,7 @@ try/with [data: debase data 64][
 try/with [write %.github-test.safe data][
     print "Failed to save the safe file!" quit 3
 ]
+
+try/with [su/p github-test get-env 'REBOL_SAFE_PASS][
+    print "Failed to load the test user!" quit 4
+]

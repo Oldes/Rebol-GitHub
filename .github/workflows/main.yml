@@ -25,28 +25,24 @@ jobs:
     - name: Install Rebol for the test
       uses: oldes/install-rebol@v3.22.1
 
-    - name: Run offline unit tests
-      run: ./rebol3 unit-tests.r3
-
-    - name: Setup Rebol user environment
+    - name: Setup user
       env:
-        REBOL_USER_FILE: ${{ secrets.REBOL_USER_FILE }}
-      run: printf '%s' "$REBOL_USER_FILE" > /home/runner/user.reb
+        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
+        REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
+      run: ./rebol3 -s ci-setup.r3
+
+    - name: Run offline unit tests
+      run: ./rebol3 -s unit-tests.r3
 
     - name: Validate Rebol user enironment
       env:
-        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
         REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
-      run: |
-        ./rebol3 --do "probe what-dir"
-        ./rebol3 --do "print read %/home/runner/user.reb"
-        ./rebol3 --do "? system/options ? system/user ls (system/options/home)"
+      run: ./rebol3 --do "? system/options ? system/user ls (system/options/home)"
 
     - name: Test GitHub API module
       env:
-        REBOL_SAFE_FILE: ${{ secrets.REBOL_SAFE_FILE }}
         REBOL_SAFE_PASS: ${{ secrets.REBOL_SAFE_PASS }}
-      run:  ./rebol3 ci-test.r3
+      run:  ./rebol3 -s ci-test.r3
 
     - uses: actions/upload-artifact@v6
       with:

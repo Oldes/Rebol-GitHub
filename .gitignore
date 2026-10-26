@@ -7,5 +7,6 @@
 !/README.md
 !/LICENSE
 !/ci-test.r3
+!/ci-setup.r3
 !/unit-tests.r3
 
