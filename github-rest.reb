@@ -217,7 +217,7 @@ rest: context [
 	*header: function[][
 		header: clear #[]
 		unless header/Authorization: user's github-token [
-			do make error! "Authorization token (github-token) is missing!"
+			fail "Authorization token (github-token) is missing!"
 		]
 		header/Accept: "application/vnd.github+json"
 		header/X-GitHub-Api-Version: "2022-11-28"

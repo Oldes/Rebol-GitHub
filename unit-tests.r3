@@ -286,6 +286,13 @@ group "*header"
 		none? select h 'X-OAuth-Scopes
 	]
 ]
+--test-- "missing token raises error" [
+	saved: :user's
+	user's: func['field][none]
+	e: try [real-header]
+	user's: :saved
+	all [error? e  did find form e "github-token"]
+]
 
 
 group "run/workflow"
