@@ -13,12 +13,12 @@ Rebol [
 		github-get
 		github-post
 		github-edit
-		fail ;; if not present
 	]
 ]
 
 ;; Backward compatibility:
 #include %compatibility.reb
+#include %github-auth.reb    ;; Token lookup
 #include %github-rest.reb    ;; GitHub REST API
 #include %github-graphql.reb ;; GitHub GraphQL API
 

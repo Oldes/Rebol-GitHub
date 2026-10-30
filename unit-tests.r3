@@ -89,11 +89,52 @@ summary: does [
 ;;=============================================================================
 
 do %compatibility.reb
+do %github-auth.reb
 do %github-rest.reb
 do %github-graphql.reb
 real-do:     :rest/*do
 real-header: :rest/*header
 real-user's:  :user's
+
+
+with-auth: func[
+	"Evaluates code with a mocked user token and GITHUB_TOKEN env value"
+	user-token [string! none!]
+	env-token  [string! none!]
+	code [block!]
+	/local saved-users saved-env result
+][
+	saved-users: :user's
+	saved-env: get-env "GITHUB_TOKEN"
+	user's: func['field][if field == 'github-token [user-token]]
+	set-env "GITHUB_TOKEN" env-token
+	result: try code
+	user's: :saved-users
+	set-env "GITHUB_TOKEN" saved-env
+	result
+]
+
+group "token"
+
+--test-- "token from user data" [
+	is? with-auth "token U" none [*token] "token U"
+]
+--test-- "GITHUB_TOKEN fallback" [
+	is? with-auth none "E" [*token] "Bearer E"
+]
+--test-- "user data wins over env" [
+	is? with-auth "token U" "E" [*token] "token U"
+]
+--test-- "empty GITHUB_TOKEN is ignored" [
+	e: with-auth none "" [*token]
+	error? e
+]
+--test-- "missing token raises" [
+	e: with-auth none none [*token]
+	all [error? e  did find form e "github-token"]
+]
+
+
 
 undocumented: func[
 	"Returns names of functions without a docstring"
@@ -304,20 +345,15 @@ rest/*send: func[url request /local n][
 group "*header"
 
 --test-- "auth headers without X-OAuth-Scopes" [
-	user's: :mock-user's
-	h: try [real-header]
-	user's: :real-user's
+	h: with-auth "token T" none [real-header]
 	all [
 		map? h
 		h/Authorization == "token T"
 		none? select h 'X-OAuth-Scopes
 	]
 ]
---test-- "missing token raises error" [
-	saved: :user's
-	user's: func['field][none]
-	e: try [real-header]
-	user's: :saved
+--test-- "missing token raises" [
+	e: with-auth none none [real-header]
 	all [error? e  did find form e "github-token"]
 ]
 

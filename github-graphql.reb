@@ -21,9 +21,7 @@ graphql: context [
 		variables [map! none!]
 		/local data tries result response
 	][
-		if none? header/Authorization: user's github-token [
-			fail "Authorization token (github-token) is missing!"
-		]
+		header/Authorization: *token
 		if word? :query [
 			unless result: select queries :query [
 				print [as-purple "*** Unknown query:" as-red :query]

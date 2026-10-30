@@ -239,9 +239,7 @@ rest: context [
 		"Returns request headers with the GitHub token"
 	][
 		header: clear #[]
-		unless header/Authorization: user's github-token [
-			fail "Authorization token (github-token) is missing!"
-		]
+		unless header/Authorization: *token
 		header/Accept: "application/vnd.github+json"
 		header/X-GitHub-Api-Version: "2022-11-28"
 		header

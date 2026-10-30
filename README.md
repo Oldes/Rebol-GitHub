@@ -25,6 +25,7 @@ if none? user's github-token [
 ;; Once the GitHub token is stored, one can import the module:
 import 'github
 ```
+When no `github-token` is stored in the user's data, the `GITHUB_TOKEN` environment variable is used instead (sent as `Bearer <token>`).
 
 ## GraphQL API Usage example
 
