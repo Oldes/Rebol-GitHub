@@ -3,11 +3,13 @@ Rebol [
 ]
 
 ;; Backward compatibility:
-if system/version < 3.22.5 [
-	extend system/contexts/lib 'fail fail: func [
-	    {Raises the given error or an error with the given message.}
-	    value [string! error!] "error message or error value"
+;; `fail` is native since Rebol 3.22.5; provide a fallback for older versions
+fail: any [
+	select system/contexts/lib 'fail
+	func [
+		"Raises the given error or an error with the given message."
+		value [string! error!] "Error message or error value"
 	][
-	    do make error! value
+		do make error! value
 	]
 ]

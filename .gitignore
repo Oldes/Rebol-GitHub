@@ -9,4 +9,5 @@
 !/ci-test.r3
 !/ci-setup.r3
 !/unit-tests.r3
+!/tools
 
